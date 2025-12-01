@@ -1,0 +1,42 @@
+name: CI
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1) Fetch code from repository
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2) Install compiler + CMake
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            build-essential \
+            cmake
+
+      # 3) CMake configure
+      - name: Configure CMake
+        run: |
+          mkdir -p build
+          cd build
+          cmake ..
+
+      # 4) Build
+      - name: Build
+        run: |
+          cd build
+          cmake --build . --config Release
+
+      # 5) Build на Docker image
+      - name: Build Docker image
+        run: |
+          docker build -t taskboard-backend:ci .
