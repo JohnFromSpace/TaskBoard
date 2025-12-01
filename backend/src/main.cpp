@@ -22,40 +22,9 @@ using socket_t = int;
 #include <iostream>
 #include <string>
 
+#include "https_responses.h"
+
 constexpr int PORT = 5000;
-
-// Very small and naive HTTP server used only for the DevOps demo.
-// It is NOT production-ready and only understands:
-//   GET /health HTTP/1.1
-// Everything else gets a 404.
-
-std::string build_health_response() {
-    const std::string body = R"({"status":"ok","service":"taskboard-backend"})";
-    std::string response;
-
-    response += "HTTP/1.1 200 OK\r\n";
-    response += "Content-Type: application/json\r\n";
-    response += "Content-Length: " + std::to_string(body.size()) + "\r\n";
-    response += "Connection: close\r\n";
-    response += "\r\n";
-    response += body;
-
-    return response;
-}
-
-std::string build_not_found_response() {
-    const std::string body = R"({"error":"not found"})";
-    std::string response;
-
-    response += "HTTP/1.1 404 Not Found\r\n";
-    response += "Content-Type: application/json\r\n";
-    response += "Content-Length: " + std::to_string(body.size()) + "\r\n";
-    response += "Connection: close\r\n";
-    response += "\r\n";
-    response += body;
-
-    return response;
-}
 
 int main() {
 #ifdef _WIN32
