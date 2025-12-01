@@ -1,0 +1,14 @@
+# Build artifacts
+/build/
+/out/
+CMakeCache.txt
+CMakeFiles/
+
+# Visual Studio
+/.vs/
+*.vcxproj*
+*.vcxproj.user
+*.sln
+
+# Other
+*.log
