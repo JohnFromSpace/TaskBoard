@@ -9,6 +9,7 @@ CMakeFiles/
 *.vcxproj*
 *.vcxproj.user
 *.sln
+*.etl
 
 # Other
 *.log
