@@ -33,11 +33,18 @@ jobs:
           echo "${{ github.token }}" | docker login $REGISTRY -u ${{ github.actor }} --password-stdin
 
       - name: Build and push Docker image
+        env:
+          REGISTRY: ghcr.io
+          IMAGE_NAME: taskboard-backend
         run: |
-          IMAGE_TAG=${REGISTRY}/${{ github.repository_owner }}/$IMAGE_NAME
-          docker build -t ${IMAGE_TAG}:${{ github.sha }} -t ${IMAGE_TAG}:latest .
-          docker push ${IMAGE_TAG}:${{ github.sha }}
-          docker push ${IMAGE_TAG}:latest
+          OWNER="$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')"
+          IMAGE_TAG="${REGISTRY}/${OWNER}/${IMAGE_NAME}"
+          echo "Using image tag: $IMAGE_TAG"
+
+          docker build -t "${IMAGE_TAG}:${GITHUB_SHA}" -t "${IMAGE_TAG}:latest" .
+          docker push "${IMAGE_TAG}:${GITHUB_SHA}"
+          docker push "${IMAGE_TAG}:latest"
+
 
       - name: Set up kubectl
         run: |
