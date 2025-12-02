@@ -16,12 +16,8 @@ spec:
       containers:
         - name: taskboard-backend
           image: ghcr.io/johnfromspace/taskboard-backend:latest
-          imagePullPolicy: Always
           ports:
             - containerPort: 5000
-          env:
-            - name: PORT
-              value: "5000"
           readinessProbe:
             httpGet:
               path: /health
@@ -34,11 +30,4 @@ spec:
               port: 5000
             initialDelaySeconds: 10
             periodSeconds: 10
-          resources:
-            requests:
-              cpu: "50m"
-              memory: "64Mi"
-            limits:
-              cpu: "250m"
-              memory: "256Mi"
-      restartPolicy: Always
+
