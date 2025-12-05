@@ -236,6 +236,97 @@ The CD pipeline uses **kind** (Kubernetes-in-Docker) inside GitHub Actions to cr
 
 This provides a real Kubernetes deployment and smoke test without requiring a persistent external cluster or local Docker Desktop.
 
+### Optional: Local Kubernetes with Docker Desktop
+
+In addition to the CI/CD kind cluster, the same manifests can be tested against the local Kubernetes cluster provided by Docker Desktop.
+
+1. **Enable Kubernetes in Docker Desktop**
+
+Open Docker Desktop → Settings → Kubernetes
+
+Enable "Enable Kubernetes" and apply the changes.
+
+After Kubernetes is running, verify:
+
+```bash
+kubectl config current-context
+kubectl get nodes
+```
+
+You should see the docker-desktop context and a Ready node.
+
+2. **Apply project manifests**
+
+From the repository root:
+
+```bash
+kubectl apply -f k8s/namespace.yaml
+kubectl apply -f k8s/deployment.yaml
+kubectl apply -f k8s/service.yaml
+
+kubectl get pods -n taskboard
+kubectl get svc  -n taskboard
+```
+
+You should see two taskboard-backend pods and a taskboard-backend service.
+
+3. **Use the locally built image (`taskboard-backend:local`)**
+
+If you want to run exactly the same image you built locally (with `docker build -t taskboard-backend:local .`), you can update the deployment to use it:
+
+```bash
+kubectl set image deployment/taskboard-backend \
+  taskboard-backend=taskboard-backend:local \
+  -n taskboard
+```
+
+Then wait for the rollout:
+
+```bash
+kubectl rollout status deployment/taskboard-backend -n taskboard
+kubectl get pods -n taskboard
+```
+
+4. **Port-forward and test /health**
+
+Expose the service locally:
+
+```bash
+kubectl port-forward svc/taskboard-backend -n taskboard 5000:80
+```
+
+Leave this command running, then in another terminal:
+
+```bash
+curl http://localhost:5000/health
+```
+
+Expected response:
+
+```json
+{"status":"ok","service":"taskboard-backend"}
+```
+
+This confirms that:
+
+The application is running inside the local Kubernetes cluster.
+
+The Service routes traffic correctly to the pods.
+
+The `/health` endpoint is reachable through Kubernetes.
+
+5. **Clean up (optional)**
+
+To remove the resources from the local cluster:
+
+```bash
+kubectl delete -f k8s/service.yaml
+kubectl delete -f k8s/deployment.yaml
+kubectl delete -f k8s/namespace.yaml
+# or simply:
+# kubectl delete namespace taskboard
+```
+
 ---
 
 ## CI Pipeline – `.github/workflows/ci.yml`
